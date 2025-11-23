@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    /* CSS Variables for theming */
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f7f9f9;
+      --bg-tertiary: #eff3f4;
+      --text-primary: #0f1419;
+      --text-secondary: #536471;
+      --border-color: #eff3f4;
+      --border-color-secondary: #cfd9de;
+      --hover-bg: #f7f9f9;
+      --hover-bg-secondary: #eff3f4;
+      --scrollbar-track: #f7f9f9;
+      --scrollbar-thumb: #cfd9de;
+      --scrollbar-thumb-hover: #aab8c2;
+      --toggle-bg: #ccd6dd;
+      --toggle-enabled: #1d9bf0;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #15202b;
+      --bg-secondary: #192734;
+      --bg-tertiary: #1e2732;
+      --text-primary: #f7f9f9;
+      --text-secondary: #8b98a5;
+      --border-color: #2f3336;
+      --border-color-secondary: #38444d;
+      --hover-bg: #1e2732;
+      --hover-bg-secondary: #253341;
+      --scrollbar-track: #192734;
+      --scrollbar-thumb: #38444d;
+      --scrollbar-thumb-hover: #526069;
+      --toggle-bg: #38444d;
+      --toggle-enabled: #1d9bf0;
+      --shadow-color: rgba(0, 0, 0, 0.3);
+    }
+
+    body {
+      width: 320px;
+      max-height: 600px;
+      padding: 16px;
+      padding-bottom: 48px; /* Space for theme toggle */
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      overflow-y: auto;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: background 0.3s, color 0.3s;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      transition: background 0.3s;
+    }
+    .toggle-label {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: var(--toggle-bg);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle-switch.enabled {
+      background: var(--toggle-enabled);
+    }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px var(--shadow-color);
+    }
+    .toggle-switch.enabled::after {
+      transform: translateX(20px);
+    }
+    .status {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      text-align: center;
+    }
+    .section {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 8px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      transition: background 0.2s;
+    }
+    .section-header:hover {
+      background: var(--bg-tertiary);
+    }
+    .section-title {
+      font-weight: 500;
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+    .expand-icon {
+      transition: transform 0.2s;
+      color: var(--text-secondary);
+    }
+    .expand-icon.expanded {
+      transform: rotate(180deg);
+    }
+    .country-filter-content {
+      display: none;
+      padding: 8px 0;
+    }
+    .country-filter-content.visible {
+      display: block;
+    }
+    .filter-actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--border-color-secondary);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: var(--hover-bg);
+      border-color: var(--toggle-enabled);
+    }
+    .btn:active {
+      background: var(--hover-bg-secondary);
+    }
+    .country-list {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px;
+      background: var(--bg-primary);
+    }
+    .country-item {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.1s;
+    }
+    .country-item:hover {
+      background: var(--hover-bg);
+    }
+    .country-checkbox {
+      width: 18px;
+      height: 18px;
+      margin-right: 10px;
+      cursor: pointer;
+      accent-color: var(--toggle-enabled);
+    }
+    .country-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      cursor: pointer;
+      user-select: none;
+    }
+    .country-flag {
+      font-size: 18px;
+    }
+    .country-name {
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+    .filter-info {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      padding: 8px;
+      background: var(--bg-secondary);
+      border-radius: 6px;
+      text-align: center;
+    }
+    .info {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* Theme toggle button */
+    .theme-toggle {
+      position: fixed;
+      bottom: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s;
+      box-shadow: 0 2px 4px var(--shadow-color);
+    }
+    .theme-toggle:hover {
+      background: var(--hover-bg-secondary);
+      transform: scale(1.1);
+    }
+    .theme-toggle:active {
+      transform: scale(0.95);
+    }
+
+    /* Scrollbar styling */
+    .country-list::-webkit-scrollbar {
+      width: 8px;
+    }
+    .country-list::-webkit-scrollbar-track {
+      background: var(--scrollbar-track);
+      border-radius: 4px;
+    }
+    .country-list::-webkit-scrollbar-thumb {
+      background: var(--scrollbar-thumb);
+      border-radius: 4px;
+    }
+    .country-list::-webkit-scrollbar-thumb:hover {
+      background: var(--scrollbar-thumb-hover);
+    }
+    body::-webkit-scrollbar {
+      width: 8px;
+    }
+    body::-webkit-scrollbar-track {
+      background: var(--scrollbar-track);
+    }
+    body::-webkit-scrollbar-thumb {
+      background: var(--scrollbar-thumb);
+      border-radius: 4px;
+    }
+    body::-webkit-scrollbar-thumb:hover {
+      background: var(--scrollbar-thumb-hover);
+    }
+
+    /* Rate Limit Section */
+    .rate-limit-info {
+      padding: 12px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .rate-limit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .rate-limit-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    .rate-limit-count {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .rate-limit-count.warning {
+      color: #f4b400;
+      font-weight: 600;
+    }
+    .rate-limit-count.critical {
+      color: #e74c3c;
+      font-weight: 600;
+    }
+    .progress-bar-container {
+      height: 6px;
+      background: var(--bg-tertiary);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .progress-bar {
+      height: 100%;
+      background: #1d9bf0;
+      border-radius: 3px;
+      transition: width 0.3s, background 0.3s;
+    }
+    .progress-bar.warning {
+      background: #f4b400;
+    }
+    .progress-bar.critical {
+      background: #e74c3c;
+    }
+    .rate-limit-reset {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    /* Loading Mode Section */
+    .loading-modes {
+      padding: 12px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+    }
+    .mode-option {
+      display: flex;
+      align-items: flex-start;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mode-option:hover {
+      background: var(--hover-bg);
+      border-color: var(--toggle-enabled);
+    }
+    .mode-option.selected {
+      border-color: var(--toggle-enabled);
+      background: var(--hover-bg);
+    }
+    .mode-radio {
+      margin-right: 10px;
+      margin-top: 2px;
+      accent-color: var(--toggle-enabled);
+      cursor: pointer;
+    }
+    .mode-label {
+      flex: 1;
+      cursor: pointer;
+    }
+    .mode-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .mode-description {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Twitter Location Flag</h1>
+  </div>
+
+  <div class="toggle-container">
+    <span class="toggle-label">Enable Extension</span>
+    <div class="toggle-switch" id="toggleSwitch"></div>
+  </div>
+
+  <div class="status" id="status">Loading...</div>
+
+  <div class="section">
+    <div class="section-header" id="filterSectionHeader">
+      <span class="section-title">Country Filter</span>
+      <span class="expand-icon" id="expandIcon">▼</span>
+    </div>
+
+    <div class="country-filter-content" id="countryFilterContent">
+      <div class="toggle-container">
+        <span class="toggle-label">Enable Filter</span>
+        <div class="toggle-switch" id="filterToggle"></div>
+      </div>
+
+      <div class="filter-info" id="filterInfo">
+        Select countries to show in feed
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn" id="selectAllBtn">Select All</button>
+        <button class="btn" id="deselectAllBtn">Deselect All</button>
+      </div>
+
+      <div class="country-list" id="countryList">
+        <!-- Countries will be populated by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Rate Limit Status Section -->
+  <div class="section">
+    <div class="section-header" id="rateLimitSectionHeader">
+      <span class="section-title">API Usage</span>
+      <span class="expand-icon" id="rateLimitExpandIcon">▼</span>
+    </div>
+
+    <div class="country-filter-content" id="rateLimitContent">
+      <div class="rate-limit-info">
+        <div class="rate-limit-header">
+          <span class="rate-limit-text">Twitter API Requests</span>
+          <span class="rate-limit-count" id="rateLimitCount">0/40</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="rateLimitProgress" style="width: 0%"></div>
+        </div>
+        <div class="rate-limit-reset" id="rateLimitReset">Resets in 15 minutes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Mode Settings Section -->
+  <div class="section">
+    <div class="section-header" id="loadingModeSectionHeader">
+      <span class="section-title">Loading Mode</span>
+      <span class="expand-icon" id="loadingModeExpandIcon">▼</span>
+    </div>
+
+    <div class="country-filter-content" id="loadingModeContent">
+      <div class="loading-modes">
+        <div class="mode-option" data-mode="aggressive">
+          <input type="radio" name="loadingMode" value="aggressive" class="mode-radio" id="modeAggressive">
+          <label for="modeAggressive" class="mode-label">
+            <div class="mode-title">⚡ Aggressive</div>
+            <div class="mode-description">Load all locations immediately. May hit rate limits on large feeds.</div>
+          </label>
+        </div>
+
+        <div class="mode-option selected" data-mode="balanced">
+          <input type="radio" name="loadingMode" value="balanced" class="mode-radio" id="modeBalanced" checked>
+          <label for="modeBalanced" class="mode-label">
+            <div class="mode-title">⚖️ Balanced (Recommended)</div>
+            <div class="mode-description">Only load locations for tweets visible on screen. Prevents rate limits.</div>
+          </label>
+        </div>
+
+        <div class="mode-option" data-mode="conservative">
+          <input type="radio" name="loadingMode" value="conservative" class="mode-radio" id="modeConservative">
+          <label for="modeConservative" class="mode-label">
+            <div class="mode-title">🐢 Conservative</div>
+            <div class="mode-description">Manual loading only. Minimal API usage.</div>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info">
+    Shows country flags next to Twitter usernames. Filter feed by country when enabled.
+  </div>
+
+  <!-- Theme toggle button -->
+  <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode">
+    🌙
+  </button>
+
+  <script src="countryFlags.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+// Country name to flag emoji mapping
+const COUNTRY_FLAGS = {
+  "Unknown": "❓",  // Special entry for accounts without location
+  "Afghanistan": "🇦🇫",
+  "Albania": "🇦🇱",
+  "Algeria": "🇩🇿",
+  "Argentina": "🇦🇷",
+  "Australia": "🇦🇺",
+  "Austria": "🇦🇹",
+  "Bangladesh": "🇧🇩",
+  "Belgium": "🇧🇪",
+  "Brazil": "🇧🇷",
+  "Canada": "🇨🇦",
+  "Chile": "🇨🇱",
+  "China": "🇨🇳",
+  "Colombia": "🇨🇴",
+  "Czech Republic": "🇨🇿",
+  "Denmark": "🇩🇰",
+  "Egypt": "🇪🇬",
+  "Europe": "🇪🇺",
+  "Finland": "🇫🇮",
+  "France": "🇫🇷",
+  "Germany": "🇩🇪",
+  "Greece": "🇬🇷",
+  "Hong Kong": "🇭🇰",
+  "Hungary": "🇭🇺",
+  "India": "🇮🇳",
+  "Indonesia": "🇮🇩",
+  "Iran": "🇮🇷",
+  "Iraq": "🇮🇶",
+  "Ireland": "🇮🇪",
+  "Israel": "🇮🇱",
+  "Italy": "🇮🇹",
+  "Japan": "🇯🇵",
+  "Kenya": "🇰🇪",
+  "Malaysia": "🇲🇾",
+  "Mexico": "🇲🇽",
+  "Netherlands": "🇳🇱",
+  "New Zealand": "🇳🇿",
+  "Nigeria": "🇳🇬",
+  "Norway": "🇳🇴",
+  "Pakistan": "🇵🇰",
+  "Philippines": "🇵🇭",
+  "Poland": "🇵🇱",
+  "Portugal": "🇵🇹",
+  "Romania": "🇷🇴",
+  "Russia": "🇷🇺",
+  "Saudi Arabia": "🇸🇦",
+  "Singapore": "🇸🇬",
+  "South Africa": "🇿🇦",
+  "Korea": "🇰🇷",
+  "South Korea": "🇰🇷",
+  "Spain": "🇪🇸",
+  "Sweden": "🇸🇪",
+  "Switzerland": "🇨🇭",
+  "Taiwan": "🇹🇼",
+  "Thailand": "🇹🇭",
+  "Turkey": "🇹🇷",
+  "Ukraine": "🇺🇦",
+  "United Arab Emirates": "🇦🇪",
+  "United Kingdom": "🇬🇧",
+  "United States": "🇺🇸",
+  "Venezuela": "🇻🇪",
+  "Vietnam": "🇻🇳"
+};
+
+function getCountryFlag(countryName) {
+  if (!countryName) return COUNTRY_FLAGS['Unknown'];
+
+  // Try exact match first
+  if (COUNTRY_FLAGS[countryName]) {
+    return COUNTRY_FLAGS[countryName];
+  }
+
+  // Try case-insensitive match
+  const normalized = countryName.trim();
+  for (const [country, flag] of Object.entries(COUNTRY_FLAGS)) {
+    if (country.toLowerCase() === normalized.toLowerCase()) {
+      return flag;
+    }
+  }
+
+  // If no match found, return Unknown flag for non-country locations (regions, etc.)
+  console.log(`⚠️ Location "${countryName}" is not a recognized country - using Unknown flag`);
+  return COUNTRY_FLAGS['Unknown'];
+}
+
